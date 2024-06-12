@@ -1,7 +1,11 @@
 ﻿@model List<Category>
 
+@{
+    ViewData["Title"] = "Categories";
+}
+
 <div class="row pb-3">
-    <div class="col-6">
+    <div class="col-6 d-flex align-items-center">
         <h3>All Categories</h3>
     </div>
 
@@ -14,8 +18,9 @@
     <table class="table table-hover">
         <thead>
             <tr class="table-dark">
-                <th scope="col">Name</th>
+                <th class="col-4" scope="col">Name</th>
                 <th scope="col">Display Order</th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
@@ -25,9 +30,53 @@
                 <tr>
                     <td>@item.Name</td>
                     <td>@item.DisplayOrder</td>
+                    <td>
+                        <a asp-controller="Category" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-category-id="@item.Id" data-category-name="@item.Name">Delete</button>
+                    </td>
                 </tr>
             }
 
         </tbody>
     </table>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the category "<span class="text-danger" id="categoryName"></span>"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            var categoryId = button.getAttribute('data-category-id'); // Extract info from data-* attributes
+            var categoryName = button.getAttribute('data-category-name'); // Extract the category name
+
+            // Update the modal's body with the category name
+            var categoryNameSpan = document.getElementById('categoryName');
+            categoryNameSpan.textContent = categoryName;
+
+            // Update the form action with the correct category ID
+            var deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = '/Category/Delete/' + categoryId;
+        });
+    </script>
+}
