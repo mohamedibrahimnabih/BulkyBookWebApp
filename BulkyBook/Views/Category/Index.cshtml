@@ -4,6 +4,10 @@
     ViewData["Title"] = "Categories";
 }
 
+@section Notifactions {
+    <partial name="_AlertPartial"></partial>
+}
+
 <div class="row pb-3">
     <div class="col-6 d-flex align-items-center">
         <h3>All Categories</h3>
@@ -31,8 +35,8 @@
                     <td>@item.Name</td>
                     <td>@item.DisplayOrder</td>
                     <td>
-                        <a asp-controller="Category" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-category-id="@item.Id" data-category-name="@item.Name">Delete</button>
+                        <a asp-controller="Category" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-category-id="@item.Id" data-category-name="@item.Name"><i class="bi bi-trash"></i> Delete</button>
                     </td>
                 </tr>
             }
@@ -77,6 +81,12 @@
             // Update the form action with the correct category ID
             var deleteForm = document.getElementById('deleteForm');
             deleteForm.action = '/Category/Delete/' + categoryId;
+
+            // After deletion is confirmed and successful, reload the page
+            var deleteForm = document.getElementById('deleteForm');
+            deleteForm.addEventListener('submit', function () {
+                location.reload();
+            });
         });
     </script>
 }

@@ -1,0 +1,6 @@
+﻿@if (TempData["alert"] != null)
+{
+    <script>
+        toastr.success('@TempData["alert"]')
+    </script>
+}

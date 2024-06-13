@@ -26,11 +26,15 @@ namespace BulkyBook.Controllers
                 context.Categories.Add(category);
                 context.SaveChanges();
 
+                TempData["alert"] = "Added successfully";
+
                 return RedirectToAction("Index");
             }
 
             return View();
         }
+
+        // public IActionResult Edit(int id) => context.Categories.Find(id) != null ? View(context.Categories.Find(id)) : NotFound(); // Dublicate call form DB
 
         public IActionResult Edit(int id)
         {
@@ -48,6 +52,8 @@ namespace BulkyBook.Controllers
                 context.Categories.Update(category);
                 context.SaveChanges();
 
+                TempData["alert"] = "Edited successfully";
+
                 return RedirectToAction("Index");
             }
 
@@ -62,6 +68,8 @@ namespace BulkyBook.Controllers
             {
                 context.Categories.Remove(category);
                 context.SaveChanges();
+
+                TempData["alert"] = "Deleted successfully";
 
                 return RedirectToAction("Index");
             }
