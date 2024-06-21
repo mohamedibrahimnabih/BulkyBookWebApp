@@ -14,11 +14,14 @@ namespace BulkyBook.DataAccess.Repository
 
         public ICategoryRepository CategoryRepository {  get; private set; }
 
-        public UnitOfWork(ApplicationDbContext context, ICategoryRepository categoryRepository)
+        public IProductRepository ProductRepository { get; private set; }
+
+        public UnitOfWork(ApplicationDbContext context)
         {
             this.context = context;
-            //CategoryRepository = new CategoryRepository(context);
-            CategoryRepository = categoryRepository;
+            
+            CategoryRepository = new CategoryRepository(context);
+            ProductRepository = new ProductRepository(context);
         }
 
         public void Commit()
