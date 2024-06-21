@@ -1,4 +1,6 @@
 ﻿using BulkyBook.DataAccess.Data;
+using BulkyBook.DataAccess.Repository;
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,14 +8,14 @@ namespace BulkyBook.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext context;
+        private readonly ICategoryRepository categoryRepository;
 
-        public CategoryController(ApplicationDbContext context)
+        public CategoryController(ICategoryRepository categoryRepository)
         {
-            this.context = context;
+            this.categoryRepository = categoryRepository;
         }
 
-        public IActionResult Index() => View(context.Categories.ToList());
+        public IActionResult Index() => View(categoryRepository.GetAll());
 
         public IActionResult Create() => View();
 
@@ -23,8 +25,8 @@ namespace BulkyBook.Controllers
         {
             if(ModelState.IsValid)
             {
-                context.Categories.Add(category);
-                context.SaveChanges();
+                categoryRepository.Add(category);
+                categoryRepository.Save();
 
                 TempData["alert"] = "Added successfully";
 
@@ -38,7 +40,7 @@ namespace BulkyBook.Controllers
 
         public IActionResult Edit(int id)
         {
-            var category = context.Categories.Find(id);
+            var category = categoryRepository.GetOne(e => e.Id == id);
 
             return category != null ? View(category) : NotFound();
         }
@@ -49,8 +51,8 @@ namespace BulkyBook.Controllers
         {
             if (ModelState.IsValid)
             {
-                context.Categories.Update(category);
-                context.SaveChanges();
+                categoryRepository.Update(category);
+                categoryRepository.Save();
 
                 TempData["alert"] = "Edited successfully";
 
@@ -62,12 +64,12 @@ namespace BulkyBook.Controllers
 
         public IActionResult Delete(int id)
         {
-            var category = context.Categories.Find(id);
+            var category = categoryRepository.GetOne(e => e.Id == id);
 
             if (category != null)
             {
-                context.Categories.Remove(category);
-                context.SaveChanges();
+                categoryRepository.Remove(category);
+                categoryRepository.Save();
 
                 TempData["alert"] = "Deleted successfully";
 
