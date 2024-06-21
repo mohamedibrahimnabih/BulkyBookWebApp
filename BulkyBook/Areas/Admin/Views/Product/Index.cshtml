@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Category>
+﻿@model IEnumerable<Product>
 
 @{
-    ViewData["Title"] = "Categories";
+    ViewData["Title"] = "Products";
 }
 
 @section Notifactions {
@@ -10,11 +10,11 @@
 
 <div class="row pb-3">
     <div class="col-6 d-flex align-items-center">
-        <h3>All Categories</h3>
+        <h3>All Products</h3>
     </div>
 
     <div class="col-6 text-end">
-        <a asp-controller="Category" asp-action="Create" class="btn btn-dark"><i class="bi bi-plus-circle"></i> Create New Category</a>
+        <a asp-controller="Product" asp-action="Create" class="btn btn-dark"><i class="bi bi-plus-circle"></i> Create New Product</a>
     </div>
 </div>
 
@@ -22,8 +22,10 @@
     <table class="table table-hover">
         <thead>
             <tr class="table-dark">
-                <th class="col-4" scope="col">Name</th>
-                <th scope="col">Display Order</th>
+                <th scope="col">Title</th>
+                <th scope="col">ISBN</th>
+                <th scope="col">Author</th>
+                <th scope="col">Price</th>
                 <th scope="col"></th>
             </tr>
         </thead>
@@ -32,11 +34,13 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>@item.Name</td>
-                    <td>@item.DisplayOrder</td>
+                    <td>@item.Title</td>
+                    <td>@item.ISBN</td>
+                    <td>@item.Author</td>
+                    <td>@item.Price</td>
                     <td>
-                        <a asp-controller="Category" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-category-id="@item.Id" data-category-name="@item.Name"><i class="bi bi-trash"></i> Delete</button>
+                        <a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-product-id="@item.Id" data-product-name="@item.Title"><i class="bi bi-trash"></i> Delete</button>
                     </td>
                 </tr>
             }
@@ -54,7 +58,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete the category "<span class="text-danger" id="categoryName"></span>"?
+                Are you sure you want to delete the product "<span class="text-danger" id="productName"></span>"?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -71,16 +75,16 @@
         var deleteModal = document.getElementById('deleteModal');
         deleteModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget; // Button that triggered the modal
-            var categoryId = button.getAttribute('data-category-id'); // Extract info from data-* attributes
-            var categoryName = button.getAttribute('data-category-name'); // Extract the category name
+            var productId = button.getAttribute('data-product-id'); // Extract info from data-* attributes
+            var productName = button.getAttribute('data-product-name'); // Extract the product name
 
-            // Update the modal's body with the category name
-            var categoryNameSpan = document.getElementById('categoryName');
-            categoryNameSpan.textContent = categoryName;
+            // Update the modal's body with the product name
+            var productNameSpan = document.getElementById('productName');
+            productNameSpan.textContent = productName;
 
-            // Update the form action with the correct category ID
+            // Update the form action with the correct product ID
             var deleteForm = document.getElementById('deleteForm');
-            deleteForm.action = '/Admin/Category/Delete/' + categoryId;
+            deleteForm.action = '/Admin/Product/Delete/' + productId;
 
             // After deletion is confirmed and successful, reload the page
             var deleteForm = document.getElementById('deleteForm');
