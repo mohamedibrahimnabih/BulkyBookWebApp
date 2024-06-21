@@ -5,6 +5,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BulkyBook.Models
 {
@@ -32,5 +35,11 @@ namespace BulkyBook.Models
         [DisplayName("Price For 100+")]
         [Range(1, 1000)]
         public double Price100 { get; set; }
+
+        [DisplayName("Category")]
+        public int CategoryId { get; set; }
+        [ValidateNever]
+        [ForeignKey("CategoryId")]
+        public Category Category { get; set; } = null!;
     }
 }
