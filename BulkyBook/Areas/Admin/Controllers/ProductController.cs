@@ -40,30 +40,27 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Product product)
+        public IActionResult Create(ProductVM productVM)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.ProductRepository.Add(product);
+                unitOfWork.ProductRepository.Add(productVM.Product);
                 unitOfWork.Commit();
 
                 TempData["alert"] = "Added successfully";
 
                 return RedirectToAction("Index");
             }
-
-            //ViewData["ListOfCategories"] = ListOfCategories;
-
-            ProductVM productVM = new ProductVM()
+            else
             {
-                ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
+                productVM.ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
                 {
                     Text = e.Name,
                     Value = e.Id.ToString()
-                })
-            };
+                });
 
-            return View(productVM);
+                return View(productVM);
+            }
         }
 
         public IActionResult Edit(int id)
