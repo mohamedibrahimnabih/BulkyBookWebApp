@@ -8,14 +8,14 @@ namespace BulkyBook.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ICategoryRepository categoryRepository;
+        private readonly IUnitOfWork unitOfWork;
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            this.categoryRepository = categoryRepository;
+            this.unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index() => View(categoryRepository.GetAll());
+        public IActionResult Index() => View(unitOfWork.CategoryRepository.GetAll());
 
         public IActionResult Create() => View();
 
@@ -25,8 +25,8 @@ namespace BulkyBook.Controllers
         {
             if(ModelState.IsValid)
             {
-                categoryRepository.Add(category);
-                categoryRepository.Save();
+                unitOfWork.CategoryRepository.Add(category);
+                unitOfWork.Commit();
 
                 TempData["alert"] = "Added successfully";
 
@@ -40,7 +40,7 @@ namespace BulkyBook.Controllers
 
         public IActionResult Edit(int id)
         {
-            var category = categoryRepository.GetOne(e => e.Id == id);
+            var category = unitOfWork.CategoryRepository.GetOne(e => e.Id == id);
 
             return category != null ? View(category) : NotFound();
         }
@@ -51,8 +51,8 @@ namespace BulkyBook.Controllers
         {
             if (ModelState.IsValid)
             {
-                categoryRepository.Update(category);
-                categoryRepository.Save();
+                unitOfWork.CategoryRepository.Update(category);
+                unitOfWork.Commit();
 
                 TempData["alert"] = "Edited successfully";
 
@@ -64,12 +64,12 @@ namespace BulkyBook.Controllers
 
         public IActionResult Delete(int id)
         {
-            var category = categoryRepository.GetOne(e => e.Id == id);
+            var category = unitOfWork.CategoryRepository.GetOne(e => e.Id == id);
 
             if (category != null)
             {
-                categoryRepository.Remove(category);
-                categoryRepository.Save();
+                unitOfWork.CategoryRepository.Remove(category);
+                unitOfWork.Commit();
 
                 TempData["alert"] = "Deleted successfully";
 

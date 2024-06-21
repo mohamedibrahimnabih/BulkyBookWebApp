@@ -12,11 +12,6 @@ namespace BulkyBook.DataAccess.Repository
 {
     public class CategoryRepository(ApplicationDbContext context) : Repository<Category>(context), ICategoryRepository
     {
-        public void Save()
-        {
-            context.SaveChanges();
-        }
-
         public void Update(Category category)
         {
             context.Categories.Update(category);
