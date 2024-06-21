@@ -2,6 +2,7 @@
 using BulkyBook.DataAccess.Repository;
 using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
+using BulkyBook.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -27,9 +28,14 @@ namespace BulkyBook.Areas.Admin.Controllers
                 Value = e.Id.ToString()
             });
 
-            ViewData["ListOfCategories"] = ListOfCategories;
+            //ViewData["ListOfCategories"] = ListOfCategories;
 
-            return View();
+            ProductVM productVM = new ProductVM()
+            {
+                ListOfCategories = ListOfCategories
+            };
+
+            return View(productVM);
         }
 
         [HttpPost]
@@ -46,7 +52,18 @@ namespace BulkyBook.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View();
+            //ViewData["ListOfCategories"] = ListOfCategories;
+
+            ProductVM productVM = new ProductVM()
+            {
+                ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
+                {
+                    Text = e.Name,
+                    Value = e.Id.ToString()
+                })
+            };
+
+            return View(productVM);
         }
 
         public IActionResult Edit(int id)
