@@ -3,6 +3,7 @@ using BulkyBook.DataAccess.Repository;
 using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BulkyBook.Areas.Admin.Controllers
 {
@@ -18,7 +19,18 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         public IActionResult Index() => View(unitOfWork.ProductRepository.GetAll());
 
-        public IActionResult Create() => View();
+        public IActionResult Create()
+        {
+            IEnumerable<SelectListItem> ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
+            {
+                Text = e.Name,
+                Value = e.Id.ToString()
+            });
+
+            ViewData["ListOfCategories"] = ListOfCategories;
+
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
