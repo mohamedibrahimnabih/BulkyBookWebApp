@@ -1,14 +1,25 @@
 ﻿@model Category
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = Model.Id == 0 ? "Create" : "Edit";
 }
 
-<h3>Edit <span class="text-warning">@Model.Name</span> Category</h3>
+<h3>
+    @if (Model.Id == 0)
+    {
+        @:Create New Category
+    }
+    else
+    {
+        @:Edit
+        <span class="text-warning">@Model.Name</span>
+        @:Category
+    }
+</h3>
 <hr />
 <div class="row">
     <div>
-        <form asp-action="Edit">
+        <form asp-action="UpSert">
             <div asp-validation-summary="None" class="text-danger"></div>
             <input asp-for="Id" type="hidden" />
             <div class="form-group pb-2">
@@ -23,7 +34,14 @@
             </div>
             <div class="row pt-3">
                 <div class="col-6 d-flex align-items-center">
-                    <input type="submit" value="Update" class="btn btn-dark form-control" />
+                    @if(Model.Id == 0)
+                    {
+                        <input type="submit" value="Create" class="btn btn-dark form-control" />
+                    }
+                    else
+                    {
+                        <input type="submit" value="Update" class="btn btn-dark form-control" />
+                    }
                 </div>
                 <div class="col-6">
                     <a asp-controller="Category" asp-action="Index" class="btn btn-outline-dark form-control"><i class="bi bi-arrow-left-circle-fill"></i> Back to List</a>

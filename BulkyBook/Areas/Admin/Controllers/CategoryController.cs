@@ -18,49 +18,41 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         public IActionResult Index() => View(unitOfWork.CategoryRepository.GetAll());
 
-        public IActionResult Create() => View();
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Category category)
+        public IActionResult UpSert(int? id)
         {
-            if (ModelState.IsValid)
+            Category? category = new Category();
+            if (id != null)
             {
-                unitOfWork.CategoryRepository.Add(category);
-                unitOfWork.Commit();
-
-                TempData["alert"] = "Added successfully";
-
-                return RedirectToAction("Index");
+                category = unitOfWork.CategoryRepository.GetOne(e => e.Id == id);
             }
-
-            return View();
-        }
-
-        // public IActionResult Edit(int id) => context.Categories.Find(id) != null ? View(context.Categories.Find(id)) : NotFound(); // Dublicate call form DB
-
-        public IActionResult Edit(int id)
-        {
-            var category = unitOfWork.CategoryRepository.GetOne(e => e.Id == id);
 
             return category != null ? View(category) : NotFound();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Category category)
+        public IActionResult UpSert(Category category)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.CategoryRepository.Update(category);
+                if(category.Id == 0)
+                {
+                    unitOfWork.CategoryRepository.Add(category);
+
+                    TempData["alert"] = "Added successfully";
+                }
+                else
+                {
+                    unitOfWork.CategoryRepository.Update(category);
+
+                    TempData["alert"] = "Edited successfully";
+                }
+
                 unitOfWork.Commit();
-
-                TempData["alert"] = "Edited successfully";
-
                 return RedirectToAction("Index");
             }
 
-            return View();
+            return View(category);
         }
 
         public IActionResult Delete(int id)
