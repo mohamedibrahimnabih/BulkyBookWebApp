@@ -20,7 +20,7 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         public IActionResult Index() => View(unitOfWork.ProductRepository.GetAll());
 
-        public IActionResult Create()
+        public IActionResult UpSert(int? id)
         {
             IEnumerable<SelectListItem> ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
             {
@@ -32,59 +32,48 @@ namespace BulkyBook.Areas.Admin.Controllers
 
             ProductVM productVM = new ProductVM()
             {
-                ListOfCategories = ListOfCategories
+                ListOfCategories = ListOfCategories,
+                Product = new Product()
             };
 
-            return View(productVM);
+            if (id != null)
+            {
+                productVM.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == id);
+            }
+
+            return productVM.Product != null ? View(productVM) : NotFound();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(ProductVM productVM)
+        public IActionResult UpSert(ProductVM productVM)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.ProductRepository.Add(productVM.Product);
-                unitOfWork.Commit();
-
-                TempData["alert"] = "Added successfully";
-
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                productVM.ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
+                if (productVM.Product.Id == 0)
                 {
-                    Text = e.Name,
-                    Value = e.Id.ToString()
-                });
+                    unitOfWork.ProductRepository.Add(productVM.Product);
 
-                return View(productVM);
-            }
-        }
+                    TempData["alert"] = "Added successfully";
+                }
+                else
+                {
+                    unitOfWork.ProductRepository.Update(productVM.Product);
 
-        public IActionResult Edit(int id)
-        {
-            var product = unitOfWork.ProductRepository.GetOne(e => e.Id == id);
+                    TempData["alert"] = "Edited successfully";
+                }
 
-            return product != null ? View(product) : NotFound();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Product product)
-        {
-            if (ModelState.IsValid)
-            {
-                unitOfWork.ProductRepository.Update(product);
                 unitOfWork.Commit();
-
-                TempData["alert"] = "Edited successfully";
-
                 return RedirectToAction("Index");
             }
 
-            return View();
+            productVM.ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
+            {
+                Text = e.Name,
+                Value = e.Id.ToString()
+            });
+
+            return View(productVM);
         }
 
         public IActionResult Delete(int id)

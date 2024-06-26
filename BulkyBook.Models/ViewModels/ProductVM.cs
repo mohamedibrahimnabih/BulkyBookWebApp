@@ -10,7 +10,7 @@ namespace BulkyBook.Models.ViewModels
 {
     public class ProductVM
     {
-        public Product Product { get; set; } = null!;
+        public Product? Product { get; set; }
         [ValidateNever]
         public IEnumerable<SelectListItem> ListOfCategories { get; set; } = null!;
     }

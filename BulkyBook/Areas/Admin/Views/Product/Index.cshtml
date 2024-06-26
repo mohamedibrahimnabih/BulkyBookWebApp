@@ -14,7 +14,7 @@
     </div>
 
     <div class="col-6 text-end">
-        <a asp-controller="Product" asp-action="Create" class="btn btn-dark"><i class="bi bi-plus-circle"></i> Create New Product</a>
+        <a asp-controller="Product" asp-action="UpSert" class="btn btn-dark"><i class="bi bi-plus-circle"></i> Create New Product</a>
     </div>
 </div>
 
@@ -41,7 +41,7 @@
                     <td>@item.Price</td>
                     <td>@item.CategoryId</td>
                     <td>
-                        <a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
+                        <a asp-controller="Product" asp-action="UpSert" asp-route-id="@item.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-product-id="@item.Id" data-product-name="@item.Title"><i class="bi bi-trash"></i> Delete</button>
                     </td>
                 </tr>

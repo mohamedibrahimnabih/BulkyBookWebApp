@@ -1,15 +1,27 @@
 ﻿@model ProductVM
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = Model.Product.Id == 0 ? "Create" : "Edit";
 }
 
-<h3>Create New Product</h3>
+<h3>
+    @if (Model.Product.Id == 0)
+    {
+        @:Create New Product
+    }
+    else
+    {
+        @:Edit
+        <span class="text-warning">@Model.Product.Title</span>
+        @:Product
+    }
+</h3>
 <hr />
 <div class="row">
     <div>
-        <form asp-action="Create" enctype="multipart/form-data">
+        <form asp-action="UpSert" enctype="multipart/form-data">
             <div asp-validation-summary="None" class="text-danger"></div>
+            <input asp-for="Product.Id" type="hidden" />
             <div class="form-group pb-2">
                 <label asp-for="Product.Title" class="control-label"></label>
                 <input asp-for="Product.Title" class="form-control" />
@@ -64,7 +76,14 @@
             </div>
             <div class="row pt-3">
                 <div class="col-6 d-flex align-items-center">
-                    <input type="submit" value="Create" class="btn btn-dark form-control" />
+                    @if (Model.Product.Id == 0)
+                    {
+                        <input type="submit" value="Create" class="btn btn-dark form-control" />
+                    }
+                    else
+                    {
+                        <input type="submit" value="Update" class="btn btn-dark form-control" />
+                    }
                 </div>
                 <div class="col-6">
                     <a asp-controller="Product" asp-action="Index" class="btn btn-outline-dark form-control"><i class="bi bi-arrow-left-circle-fill"></i> Back to List</a>
