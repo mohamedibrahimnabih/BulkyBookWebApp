@@ -20,7 +20,7 @@ namespace BulkyBook.Areas.Admin.Controllers
             this.webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult Index() => View(unitOfWork.ProductRepository.GetAll());
+        public IActionResult Index() => View(unitOfWork.ProductRepository.GetAll(includeProperties: "Category"));
 
         public IActionResult UpSert(int? id)
         {

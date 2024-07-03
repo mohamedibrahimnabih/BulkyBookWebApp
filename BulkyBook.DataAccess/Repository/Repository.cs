@@ -14,6 +14,7 @@ namespace BulkyBook.DataAccess.Repository
     {
         internal readonly ApplicationDbContext context;
         private DbSet<T> dbSet;
+        private static readonly char[] separator = [','];
 
         public Repository(ApplicationDbContext context)
         {
@@ -26,11 +27,35 @@ namespace BulkyBook.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        public IEnumerable<T> GetAll() => dbSet;
+        public IEnumerable<T> GetAll(string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
 
-        public T? GetOne(Expression<Func<T, bool>> expression)
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties
+                    .Split(separator, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return query;
+        }
+
+        public T? GetOne(Expression<Func<T, bool>> expression, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet.Where(expression);
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties
+                    .Split(separator, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
             return query.FirstOrDefault();
         }
 
