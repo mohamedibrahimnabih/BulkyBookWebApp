@@ -71,5 +71,10 @@ namespace BulkyBook.Areas.Admin.Controllers
 
             return NotFound();
         }
+
+        #region APIs
+        [HttpGet]
+        public IActionResult GetAll() => Json(unitOfWork.CategoryRepository.GetAll());
+        #endregion
     }
 }

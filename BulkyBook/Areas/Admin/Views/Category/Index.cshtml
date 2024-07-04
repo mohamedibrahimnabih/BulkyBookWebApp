@@ -19,7 +19,7 @@
 </div>
 
 <div class="row">
-    <table class="table table-hover">
+    <table id="tableData" class="table table-hover">
         <thead>
             <tr class="table-dark">
                 <th class="col-4" scope="col">Name</th>
@@ -28,19 +28,7 @@
             </tr>
         </thead>
         <tbody>
-
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Name</td>
-                    <td>@item.DisplayOrder</td>
-                    <td>
-                        <a asp-controller="Category" asp-action="UpSert" asp-route-id="@item.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-category-id="@item.Id" data-category-name="@item.Name"><i class="bi bi-trash"></i> Delete</button>
-                    </td>
-                </tr>
-            }
-
+            <!-- Inserted by DataTables -->
         </tbody>
     </table>
 </div>
@@ -67,26 +55,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        var deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; // Button that triggered the modal
-            var categoryId = button.getAttribute('data-category-id'); // Extract info from data-* attributes
-            var categoryName = button.getAttribute('data-category-name'); // Extract the category name
-
-            // Update the modal's body with the category name
-            var categoryNameSpan = document.getElementById('categoryName');
-            categoryNameSpan.textContent = categoryName;
-
-            // Update the form action with the correct category ID
-            var deleteForm = document.getElementById('deleteForm');
-            deleteForm.action = '/Admin/Category/Delete/' + categoryId;
-
-            // After deletion is confirmed and successful, reload the page
-            var deleteForm = document.getElementById('deleteForm');
-            deleteForm.addEventListener('submit', function () {
-                location.reload();
-            });
-        });
-    </script>
+    <script src="~/js/category.js"></script>
 }

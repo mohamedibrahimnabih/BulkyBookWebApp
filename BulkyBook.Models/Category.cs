@@ -7,8 +7,5 @@ namespace BulkyBook.Models
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public int DisplayOrder { get; set; }
-
-        [ValidateNever]
-        public ICollection<Product> Products { get; } = new List<Product>();
     }
 }

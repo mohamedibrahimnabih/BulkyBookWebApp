@@ -19,7 +19,7 @@
 </div>
 
 <div class="row">
-    <table class="table table-hover">
+    <table id="tableData" class="table table-hover" width="100%">
         <thead>
             <tr class="table-dark">
                 <th scope="col">Title</th>
@@ -31,22 +31,7 @@
             </tr>
         </thead>
         <tbody>
-
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Title</td>
-                    <td>@item.ISBN</td>
-                    <td>@item.Author</td>
-                    <td>@item.Price</td>
-                    <td>@item.Category.Name</td>
-                    <td>
-                        <a asp-controller="Product" asp-action="UpSert" asp-route-id="@item.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-product-id="@item.Id" data-product-name="@item.Title"><i class="bi bi-trash"></i> Delete</button>
-                    </td>
-                </tr>
-            }
-
+            <!-- Inserted by DataTables -->
         </tbody>
     </table>
 </div>
@@ -73,26 +58,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        var deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; // Button that triggered the modal
-            var productId = button.getAttribute('data-product-id'); // Extract info from data-* attributes
-            var productName = button.getAttribute('data-product-name'); // Extract the product name
-
-            // Update the modal's body with the product name
-            var productNameSpan = document.getElementById('productName');
-            productNameSpan.textContent = productName;
-
-            // Update the form action with the correct product ID
-            var deleteForm = document.getElementById('deleteForm');
-            deleteForm.action = '/Admin/Product/Delete/' + productId;
-
-            // After deletion is confirmed and successful, reload the page
-            var deleteForm = document.getElementById('deleteForm');
-            deleteForm.addEventListener('submit', function () {
-                location.reload();
-            });
-        });
-    </script>
+    <script src="~/js/product.js"></script>
 }

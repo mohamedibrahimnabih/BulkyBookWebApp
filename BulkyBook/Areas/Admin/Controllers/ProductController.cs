@@ -110,8 +110,19 @@ namespace BulkyBook.Areas.Admin.Controllers
 
             if (product != null)
             {
+                var imagePath = product.ImgURL;
+
                 unitOfWork.ProductRepository.Remove(product);
                 unitOfWork.Commit();
+
+                if (!string.IsNullOrEmpty(imagePath))
+                {
+                    string fullPath = Path.Combine(webHostEnvironment.WebRootPath, imagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
 
                 TempData["alert"] = "Deleted successfully";
 
@@ -120,5 +131,10 @@ namespace BulkyBook.Areas.Admin.Controllers
 
             return NotFound();
         }
+
+        #region APIs
+        [HttpGet]
+        public IActionResult GetAll() => Json(unitOfWork.ProductRepository.GetAll(includeProperties: "Category"));
+        #endregion
     }
 }
