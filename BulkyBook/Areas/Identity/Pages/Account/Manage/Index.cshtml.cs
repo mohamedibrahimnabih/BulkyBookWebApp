@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using BulkyBook.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -58,9 +59,16 @@ namespace BulkyBook.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Required]
+            public string Name { get; set; }
+            public string StreetAddress { get; set; }
+            public string City { get; set; }
+            public string State { get; set; }
+            public string ZipCode { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser user)
+        private async Task LoadAsync(ApplicationUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
@@ -69,7 +77,12 @@ namespace BulkyBook.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                Name = user.Name,
+                StreetAddress = user.StreetAddress,
+                City = user.City,
+                State = user.State,
+                ZipCode = user.ZipCode
             };
         }
 
@@ -81,7 +94,7 @@ namespace BulkyBook.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            await LoadAsync(user);
+            await LoadAsync(user as ApplicationUser);
             return Page();
         }
 
@@ -95,7 +108,7 @@ namespace BulkyBook.Areas.Identity.Pages.Account.Manage
 
             if (!ModelState.IsValid)
             {
-                await LoadAsync(user);
+                await LoadAsync(user as ApplicationUser);
                 return Page();
             }
 
@@ -106,6 +119,24 @@ namespace BulkyBook.Areas.Identity.Pages.Account.Manage
                 if (!setPhoneResult.Succeeded)
                 {
                     StatusMessage = "Unexpected error when trying to set phone number.";
+                    return RedirectToPage();
+                }
+            }
+
+            // Update user properties
+            var applicationUser = user as ApplicationUser;
+            if (applicationUser != null)
+            {
+                applicationUser.Name = Input.Name;
+                applicationUser.StreetAddress = Input.StreetAddress;
+                applicationUser.City = Input.City;
+                applicationUser.State = Input.State;
+                applicationUser.ZipCode = Input.ZipCode;
+
+                var updateResult = await _userManager.UpdateAsync(applicationUser);
+                if (!updateResult.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to update profile.";
                     return RedirectToPage();
                 }
             }

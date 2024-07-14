@@ -7,37 +7,65 @@
 <h1>@ViewData["Title"]</h1>
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <h2>Create a new account.</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <select asp-for="Input.Role" asp-items="@Model.Input.ListOfRoles" class="form-select" aria-required="true" placeholder="role">
-                    <option disabled selected>--Select specific role--</option>
-                </select>
-                <label asp-for="Input.Role"></label>
-                <span asp-validation-for="Input.Role" class="text-danger"></span>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.Name" class="form-control" autocomplete="name" aria-required="true" placeholder="your name" />
+                    <label asp-for="Input.Name">Name</label>
+                    <span asp-validation-for="Input.Name" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    <label asp-for="Input.Email">Email</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                    <label asp-for="Input.Password">Password</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                    <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.StreetAddress" class="form-control" autocomplete="street-address" placeholder="street address" />
+                    <label asp-for="Input.StreetAddress">Street Address</label>
+                    <span asp-validation-for="Input.StreetAddress" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.City" class="form-control" autocomplete="city" placeholder="city" />
+                    <label asp-for="Input.City">City</label>
+                    <span asp-validation-for="Input.City" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.State" class="form-control" autocomplete="state" placeholder="state" />
+                    <label asp-for="Input.State">State</label>
+                    <span asp-validation-for="Input.State" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <input asp-for="Input.ZipCode" class="form-control" autocomplete="zip-code" placeholder="zip code" />
+                    <label asp-for="Input.ZipCode">Zip Code</label>
+                    <span asp-validation-for="Input.ZipCode" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating">
+                    <select asp-for="Input.Role" asp-items="@Model.Input.ListOfRoles" class="form-select" aria-required="true" placeholder="role">
+                        <option disabled selected>--Select specific role--</option>
+                    </select>
+                    <label asp-for="Input.Role"></label>
+                    <span asp-validation-for="Input.Role" class="text-danger"></span>
+                </div>
             </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-dark">Register</button>
         </form>
     </div>
-    <div class="col-md-6 col-md-offset-2">
+    <p class="divider-text d-flex pt-3">or</p>
+    <div class="col-md-12 pt-3 col-md-offset-2">
         <section>
             <h3>Use another service to register.</h3>
             <hr />
