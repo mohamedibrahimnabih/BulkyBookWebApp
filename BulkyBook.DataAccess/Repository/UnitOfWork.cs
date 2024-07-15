@@ -13,12 +13,10 @@ namespace BulkyBook.DataAccess.Repository
         private readonly ApplicationDbContext context;
 
         public ICategoryRepository CategoryRepository {  get; private set; }
-
         public IProductRepository ProductRepository { get; private set; }
-
         public ICompanyRepository CompanyRepository { get; private set; }
-
         public IShoppingCartRepository ShoppingCartRepository { get; private set; }
+        public IApplicationUserRepository ApplicationUserRepository { get; private set; }
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -28,6 +26,7 @@ namespace BulkyBook.DataAccess.Repository
             ProductRepository = new ProductRepository(context);
             CompanyRepository = new CompanyRepository(context);
             ShoppingCartRepository = new ShoppingCartRepository(context);
+            ApplicationUserRepository = new ApplicationUserRepository(context);
         }
 
         public void Commit()
