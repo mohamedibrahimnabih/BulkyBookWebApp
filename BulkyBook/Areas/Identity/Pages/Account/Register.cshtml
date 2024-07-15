@@ -54,11 +54,18 @@
                     <span asp-validation-for="Input.ZipCode" class="text-danger"></span>
                 </div>
                 <div class="col-md-6 form-floating">
-                    <select asp-for="Input.Role" asp-items="@Model.Input.ListOfRoles" class="form-select" aria-required="true" placeholder="role">
+                    <select asp-for="Input.Role" asp-items="@Model.Input.ListOfRoles" class="form-select" aria-required="true" placeholder="role" id="roleSelect">
                         <option disabled selected>--Select specific role--</option>
                     </select>
                     <label asp-for="Input.Role"></label>
                     <span asp-validation-for="Input.Role" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 form-floating" id="companySelectDiv" style="display:none;">
+                    <select asp-for="Input.Company" asp-items="@Model.Input.ListOfCompanies" class="form-select" aria-required="true" placeholder="role">
+                        <option disabled selected>--Select specific company--</option>
+                    </select>
+                    <label asp-for="Input.Company"></label>
+                    <span asp-validation-for="Input.Company" class="text-danger"></span>
                 </div>
             </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-dark">Register</button>
@@ -99,4 +106,15 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById('roleSelect').addEventListener('change', function () {
+            var companySelectDiv = document.getElementById('companySelectDiv');
+            if (this.value === 'Company') {
+                companySelectDiv.style.display = 'block';
+            } else {
+                companySelectDiv.style.display = 'none';
+            }
+        });
+    </script>
 }
