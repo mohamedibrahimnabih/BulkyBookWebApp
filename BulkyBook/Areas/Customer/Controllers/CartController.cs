@@ -1,4 +1,5 @@
 ﻿using BulkyBook.DataAccess.Repository.IRepository;
+using BulkyBook.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,13 +23,68 @@ namespace BulkyBook.Areas.Customer.Controllers
         {
             var userId = _userManager.GetUserId(User);
 
-            if(userId != null)
+            if (userId != null)
             {
                 var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "Product");
-                return View(cart);
+                var total = cart.Sum(item =>
+                    item.Count <= 50 ? item.Product.Price * item.Count :
+                    item.Count <= 100 ? item.Product.Price50 * item.Count :
+                    item.Product.Price100 * item.Count
+                );
+
+                var shoppingCartVM = new ShoppingCartVM
+                {
+                    CartItems = cart,
+                    Total = total
+                };
+
+                return View(shoppingCartVM);
             }
 
             return NotFound();
         }
+
+        #region Increment, Decrement and Remove
+        public IActionResult IncrementCount(int cartId)
+        {
+            var cart = unitOfWork.ShoppingCartRepository.GetOne(c => c.Id == cartId, tracked: true);
+            if (cart != null)
+            {
+                cart.Count += 1;
+                unitOfWork.Commit();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult DecrementCount(int cartId)
+        {
+            var cart = unitOfWork.ShoppingCartRepository.GetOne(c => c.Id == cartId, tracked: true);
+            if (cart != null)
+            {
+                if (cart.Count > 1)
+                {
+                    cart.Count -= 1;
+                    unitOfWork.Commit();
+                }
+                else
+                {
+                    unitOfWork.ShoppingCartRepository.Remove(cart);
+                    unitOfWork.Commit();
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult RemoveFromCart(int cartId)
+        {
+            var cart = unitOfWork.ShoppingCartRepository.GetOne(c => c.Id == cartId, tracked: true);
+            if (cart != null)
+            {
+                unitOfWork.ShoppingCartRepository.Remove(cart);
+                unitOfWork.Commit();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        #endregion
     }
 }

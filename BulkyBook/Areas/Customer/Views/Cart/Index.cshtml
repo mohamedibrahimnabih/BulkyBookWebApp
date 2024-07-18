@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ShoppingCart>
+﻿@model ShoppingCartVM
 
 <form asp-action="ConfirmOrder">
     <br />
@@ -10,15 +10,36 @@
                 </div>
             </div>
         </div>
-        <div class="card-body my-4">
-            <div class="row">
+
+    @if(Model.CartItems.Count() == 0)
+    {
+        <div class="card-body bg-white border-0">
+            <div class="row m-3 justify-content-center">
+                <div class="col-md-6 text-center">
+                    <h4 class="text-danger fw-bolder">The Shopping Cart is Empty!!</h4>
+                </div>
             </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-md-4 text-center">
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-dark bg-gradient text-uppercase">
+                        <small>Continue Shopping</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-body my-4">
+            <div class="row"></div>
             <div class="row mb-3 pb-3">
                 <div class="col-md-2 offset-md-1">
-                    <a href="#" class="btn btn-dark bg-gradient text-uppercase mb-5 btn-sm"><small>Continue Shopping</small></a>
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-dark bg-gradient text-uppercase mb-5 btn-sm">
+                        <small>Continue Shopping</small>
+                    </a>
                 </div>
                 <div class="col-md-10 offset-md-1">
-                    @foreach(var item in Model)
+                    @foreach (var item in Model.CartItems)
                     {
                         <div class="row border-bottom pb-3">
                             <div class="d-none d-lg-block col-lg-1 text-center py-2">
@@ -28,31 +49,40 @@
                                 <h5 class="text-uppercase text-secondary"><strong>@item.Product.Title</strong></h5>
                                 <p><small>@Html.Raw(@item.Product.Description)</small></p>
                             </div>
-                            <div class="col-12  col-lg-5 text-center row">
+                            <div class="col-12 col-lg-5 text-center row">
                                 <div class="col-3 text-md-right pt-2 pt-md-4">
                                     <h6 class="fw-semibold">
-                                        @item.Product.Price.ToString("c")
+                                        @if (item.Count <= 50)
+                                        {
+                                            @item.Product.Price.ToString("c")
+                                        }
+                                        else if (item.Count <= 100)
+                                        {
+                                            @item.Product.Price50.ToString("c")
+                                        }
+                                        else if (item.Count > 100)
+                                        {
+                                            @item.Product.Price100.ToString("c")
+                                        }
                                         <span class="text-muted">&nbsp;x&nbsp;</span>@item.Count
                                     </h6>
                                 </div>
                                 <div class="col-6 col-sm-4 col-lg-6 pt-2">
                                     <div class="w-75 btn-group" role="group">
-                                        <a class="btn btn-dark bg-gradient py-2">
+                                        <a asp-controller="Cart" asp-action="IncrementCount" asp-route-cartId="@item.Id" class="btn btn-dark bg-gradient py-2">
                                             <i class="bi bi-plus-square"></i>
                                         </a> &nbsp;
-                                        <a class="btn btn-dark bg-gradient py-2">
+                                        <a asp-controller="Cart" asp-action="DecrementCount" asp-route-cartId="@item.Id" class="btn btn-dark bg-gradient py-2">
                                             <i class="bi bi-dash-square"></i>
                                         </a>
                                     </div>
-
                                 </div>
                                 <div class="col-3 col-sm-4 col-lg-2 offset-lg-1 text-right pt-2">
-                                    <a href="#" class="btn btn-danger bg-gradient py-2 ">
+                                    <a asp-controller="Cart" asp-action="RemoveFromCart" asp-route-cartId="@item.Id" class="btn btn-danger bg-gradient py-2">
                                         <i class="bi bi-trash-fill"></i>
                                     </a>
                                 </div>
                             </div>
-
                         </div>
                     }
                 </div>
@@ -63,7 +93,7 @@
                         <ul class="list-group mb-4">
                             <li class="d-flex justify-content-between align-items-center">
                                 <h5 class="text-dark fw-semibold text-uppercase"> Total (USD)</h5>
-                                <h4 class="text-dark fw-bolder">$$</h4>
+                                <h4 class="text-dark fw-bolder">@Model.Total.ToString("c")</h4>
                             </li>
                         </ul>
                     </div>
@@ -75,4 +105,5 @@
                 </div>
             </div>
         </div>
+    }
 </form>
