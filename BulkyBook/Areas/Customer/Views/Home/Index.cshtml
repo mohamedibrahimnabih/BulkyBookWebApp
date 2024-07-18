@@ -4,6 +4,10 @@
     ViewData["Title"] = "Home Page";
 }
 
+@section Notifications {
+    <partial name="_AlertPartial"></partial>
+}
+
 <div class="row pb-3">
     @foreach (var product in Model)
     {

@@ -52,7 +52,7 @@ namespace BulkyBook.Areas.Admin.Controllers
                 }
 
                 unitOfWork.Commit();
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             return View(category);
@@ -69,7 +69,7 @@ namespace BulkyBook.Areas.Admin.Controllers
 
                 TempData["alert"] = "Deleted successfully";
 
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             return NotFound();

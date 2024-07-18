@@ -43,10 +43,10 @@ namespace BulkyBook.DataAccess.Repository
             return query;
         }
 
-        public T? GetOne(Expression<Func<T, bool>> expression, string? includeProperties = null)
+        public T? GetOne(Expression<Func<T, bool>> expression, string? includeProperties = null, bool tracked = false)
         {
-            IQueryable<T> query = dbSet.Where(expression);
-
+            IQueryable<T> query = tracked ? dbSet.Where(expression) : dbSet.Where(expression).AsNoTracking();
+            
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 foreach (var includeProperty in includeProperties
