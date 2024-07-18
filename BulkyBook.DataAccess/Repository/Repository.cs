@@ -43,6 +43,22 @@ namespace BulkyBook.DataAccess.Repository
             return query;
         }
 
+        public IEnumerable<T> Get(Expression<Func<T, bool>> expression, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet.Where(expression);
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProperty in includeProperties
+                    .Split(separator, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return query;
+        }
+
         public T? GetOne(Expression<Func<T, bool>> expression, string? includeProperties = null, bool tracked = false)
         {
             IQueryable<T> query = tracked ? dbSet.Where(expression) : dbSet.Where(expression).AsNoTracking();

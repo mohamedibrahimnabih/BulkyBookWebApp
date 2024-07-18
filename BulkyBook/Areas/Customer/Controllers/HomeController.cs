@@ -12,13 +12,13 @@ namespace BulkyBook.Areas.Customer.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork unitOfWork;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, UserManager<IdentityUser> UserManager)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
             _logger = logger;
             this.unitOfWork = unitOfWork;
-            userManager = UserManager;
+            _userManager = userManager;
         }
 
         public IActionResult Index() => View(unitOfWork.ProductRepository.GetAll(includeProperties: "Category"));
@@ -41,7 +41,7 @@ namespace BulkyBook.Areas.Customer.Controllers
         [Authorize]
         public IActionResult Details(ShoppingCart cart)
         {
-            var userId = userManager.GetUserId(User);
+            var userId = _userManager.GetUserId(User);
             if (userId != null)
             {
                 cart.ApplicationUserId = userId;
