@@ -35,8 +35,44 @@ namespace BulkyBook.Areas.Customer.Controllers
                 var shoppingCartVM = new ShoppingCartVM
                 {
                     CartItems = cart,
-                    Total = total
+                    OrderHeader = new() { OrderTotal = total }
                 };
+
+                return View(shoppingCartVM);
+            }
+
+            return NotFound();
+        }
+
+        public IActionResult Summary()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            if (userId != null)
+            {
+                var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "Product");
+                var total = cart.Sum(item =>
+                    item.Count <= 50 ? item.Product.Price * item.Count :
+                    item.Count <= 100 ? item.Product.Price50 * item.Count :
+                    item.Product.Price100 * item.Count
+                );
+
+                var user = unitOfWork.ApplicationUserRepository.GetOne(e => e.Id == userId);
+
+                var shoppingCartVM = new ShoppingCartVM
+                {
+                    CartItems = cart,
+					OrderHeader = new()
+                    {
+                        OrderTotal = total,
+                        Name = user.Name,
+                        PhoneNumber = user.PhoneNumber,
+                        StreetAddress = user.StreetAddress,
+                        City = user.City,
+                        State = user.State,
+                        PostalCode = user.ZipCode
+                    }
+				};
 
                 return View(shoppingCartVM);
             }
