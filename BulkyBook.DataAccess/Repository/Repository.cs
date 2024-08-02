@@ -27,7 +27,12 @@ namespace BulkyBook.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        public IEnumerable<T> GetAll(string? includeProperties = null)
+		public void AddRange(IEnumerable<T> entities)
+		{
+			dbSet.AddRange(entities);
+		}
+
+		public IEnumerable<T> GetAll(string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
 

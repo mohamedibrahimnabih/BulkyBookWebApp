@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -33,6 +34,8 @@ namespace BulkyBook.Models
 		public string? SessionId { get; set; }
 		public string? PaymentIntentId { get; set; }
 
+		[DisplayName("Update Profile Data")]
+		public bool UpdateProfileData { get; set; }
 		public string PhoneNumber { get; set; } = null!;
 		public string StreetAddress { get; set; } = null!;
 		public string City { get; set; } = null!;

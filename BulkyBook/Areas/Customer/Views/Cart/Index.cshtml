@@ -1,6 +1,6 @@
 ﻿@model ShoppingCartVM
 
-<form asp-action="Summary" asp-controller="Cart">
+<form method="post">
     <br />
     <div class="card shadow border-0">
         <div class="card-header bg-dark bg-gradient text-light py-4">
@@ -100,8 +100,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-2 offset-md-5">
-                        <input type="submit" value="Summary" class="btn btn-dark border-0 bg-gradient w-100 py-2" />
-                    </div>
+                            <a href="/Customer/Cart/Summary" class="btn btn-dark border-0 bg-gradient w-100 py-2">Summary</a>
+                        </div>
                 </div>
             </div>
         </div>

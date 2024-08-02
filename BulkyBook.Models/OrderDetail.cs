@@ -18,7 +18,6 @@ namespace BulkyBook.Models
 		[ValidateNever]
 		public OrderHeader OrderHeader { get; set; }
 
-
 		[Required]
 		public int ProductId { get; set; }
 		[ForeignKey("ProductId")]
