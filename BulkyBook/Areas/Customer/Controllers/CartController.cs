@@ -1,10 +1,14 @@
-﻿using BulkyBook.DataAccess.Repository.IRepository;
+﻿using BulkyBook.DataAccess.Repository;
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Stripe;
+using Stripe.Checkout;
 
 namespace BulkyBook.Areas.Customer.Controllers
 {
@@ -149,6 +153,44 @@ namespace BulkyBook.Areas.Customer.Controllers
                 unitOfWork.OrderDetailRepository.AddRange(orderDetails);
                 unitOfWork.Commit();
 
+                // Configure Stripe, Complete Payment
+                if (shoppingCartVM.OrderHeader.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
+                {
+                    var options = new SessionCreateOptions
+                    {
+                        PaymentMethodTypes = new List<string> { "card" },
+                        LineItems = new List<SessionLineItemOptions>(),
+                        Mode = "payment",
+                        SuccessUrl = $"{GetDomainName()}/Customer/Cart/CompleteOrder/{shoppingCartVM.OrderHeader.Id}",
+                        CancelUrl = $"{GetDomainName()}/Customer/Cart/PaymentIssue",
+                    };
+
+                    foreach (var item in shoppingCartVM.CartItems)
+                    {
+                        var lineItem = new SessionLineItemOptions
+                        {
+                            Quantity = item.Count,
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                Currency = "USD",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = item.Product.Title
+                                },
+                                UnitAmount = (long)item.Product.Price * 100,
+                            }
+                        };
+                        options.LineItems.Add(lineItem);
+                    }
+
+                    var service = new SessionService();
+                    var session = service.Create(options);
+                    shoppingCartVM.OrderHeader.SessionId = session.Id;
+                    unitOfWork.Commit();
+
+                    return Redirect(session.Url);
+                }
+                    
                 return RedirectToAction(nameof(CompleteOrder), new { id = shoppingCartVM.OrderHeader.Id });
             }
 
@@ -157,10 +199,44 @@ namespace BulkyBook.Areas.Customer.Controllers
 
         public IActionResult CompleteOrder(int id)
         {
-            return View(id);
+            var order = unitOfWork.OrderHeaderRepository.GetOne(e => e.Id == id, tracked: true);
+            if(order != null)
+            {
+                if(order.PaymentStatus != StaticData.PaymentStatusDelayedPayment)
+                {
+                    var service = new SessionService();
+                    var session = service.Get(order.SessionId);
+
+                    if (session.PaymentStatus == "paid")
+                    {
+                        order.OrderStatus = StaticData.StatusApproved;
+                        order.PaymentStatus = StaticData.PaymentStatusApproved;
+                        order.PaymentDate = DateTime.Now;
+                        order.PaymentIntentId = session.PaymentIntentId;
+
+                        // Remove the shopping cart
+                        var userId = _userManager.GetUserId(User);
+                        if (userId != null)
+                        {
+                            var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId);
+                            unitOfWork.ShoppingCartRepository.RemoveRange(cart);
+                        }
+
+                        unitOfWork.Commit();
+                        return View(id);
+                    }
+                }
+            }
+
+            return View(nameof(PaymentIssue));
         }
 
-        public double CalcOrderTotal(IEnumerable<ShoppingCart> carts)
+        public IActionResult PaymentIssue()
+        {
+            return View();
+        }
+
+        private double CalcOrderTotal(IEnumerable<ShoppingCart> carts)
         {
             var total = carts.Sum(item =>
                     item.Count <= 50 ? item.Product.Price * item.Count :
@@ -171,8 +247,15 @@ namespace BulkyBook.Areas.Customer.Controllers
             return total;
         }
 
+        private string GetDomainName()
+        {
+            var request = HttpContext.Request;
+            var domainName = $"{request.Scheme}://{request.Host}";
+            return domainName;
+        }
+
         #region Increment, Decrement and Remove
-            public IActionResult IncrementCount(int cartId)
+        public IActionResult IncrementCount(int cartId)
         {
             var cart = unitOfWork.ShoppingCartRepository.GetOne(c => c.Id == cartId, tracked: true);
             if (cart != null)
