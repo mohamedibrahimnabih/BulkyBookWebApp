@@ -1,6 +1,25 @@
 ﻿@model ShoppingCartVM
 
-<form asp-action="Summary" asp-controller="Cart">
+@if(Model.CartItems.Count() == 0)
+    {
+        <div class="card-body bg-white border-0">
+            <div class="row m-3 justify-content-center">
+                <div class="col-md-6 text-center">
+                    <h4 class="text-danger fw-bolder">The Shopping Cart is Empty!!</h4>
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-md-4 text-center">
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-dark bg-gradient text-uppercase">
+                        <small>Continue Shopping</small>
+                    </a>
+                </div>
+            </div>
+	</div>
+}
+else
+{
+	<form asp-action="Summary" asp-controller="Cart">
 	<br />
 	<div class="container">
 		<div class="card shadow border-0">
@@ -141,6 +160,7 @@
 		</div>
 	</div>
 </form>
+}
 
 @section Scripts {
 	@{

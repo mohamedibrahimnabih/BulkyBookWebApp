@@ -28,16 +28,11 @@ namespace BulkyBook.Areas.Customer.Controllers
             if (userId != null)
             {
                 var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "Product");
-                var total = cart.Sum(item =>
-                    item.Count <= 50 ? item.Product.Price * item.Count :
-                    item.Count <= 100 ? item.Product.Price50 * item.Count :
-                    item.Product.Price100 * item.Count
-                );
-
+                
                 var shoppingCartVM = new ShoppingCartVM
                 {
                     CartItems = cart,
-                    OrderHeader = new() { OrderTotal = total }
+                    OrderHeader = new() { OrderTotal = CalcOrderTotal(cart) }
                 };
 
                 return View(shoppingCartVM);
@@ -53,20 +48,14 @@ namespace BulkyBook.Areas.Customer.Controllers
             if (userId != null)
             {
                 var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "Product");
-                var total = cart.Sum(item =>
-                    item.Count <= 50 ? item.Product.Price * item.Count :
-                    item.Count <= 100 ? item.Product.Price50 * item.Count :
-                    item.Product.Price100 * item.Count
-                );
-
                 var user = unitOfWork.ApplicationUserRepository.GetOne(e => e.Id == userId);
 
                 var shoppingCartVM = new ShoppingCartVM
                 {
                     CartItems = cart,
-					OrderHeader = new()
+                    OrderHeader = new()
                     {
-                        OrderTotal = total,
+                        OrderTotal = CalcOrderTotal(cart),
                         Name = user.Name,
                         PhoneNumber = user.PhoneNumber,
                         StreetAddress = user.StreetAddress,
@@ -74,7 +63,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                         State = user.State,
                         PostalCode = user.ZipCode
                     }
-				};
+                };
 
                 return View(shoppingCartVM);
             }
@@ -86,8 +75,8 @@ namespace BulkyBook.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Summary(ShoppingCartVM shoppingCartVM)
         {
-			// ApplicationUserId
-			var userId = _userManager.GetUserId(User);
+            // ApplicationUserId
+            var userId = _userManager.GetUserId(User);
             if (userId != null)
             {
                 shoppingCartVM.OrderHeader.ApplicationUserId = userId;
@@ -110,67 +99,80 @@ namespace BulkyBook.Areas.Customer.Controllers
             if (ModelState.IsValid)
             {
                 // Update Profile Data
-                if(shoppingCartVM.OrderHeader.UpdateProfileData)
+                var user = unitOfWork.ApplicationUserRepository.GetOne(e => e.Id == userId, tracked: true);
+                if (shoppingCartVM.OrderHeader.UpdateProfileData)
                 {
-					var user = unitOfWork.ApplicationUserRepository.GetOne(e => e.Id == userId, tracked: true);
-					user.Name = shoppingCartVM.OrderHeader.Name;
-					user.PhoneNumber = shoppingCartVM.OrderHeader.PhoneNumber;
-					user.StreetAddress = shoppingCartVM.OrderHeader.StreetAddress;
-					user.City = shoppingCartVM.OrderHeader.City;
-					user.State = shoppingCartVM.OrderHeader.State;
-					user.ZipCode = shoppingCartVM.OrderHeader.PostalCode;
-				}
+                    user.Name = shoppingCartVM.OrderHeader.Name;
+                    user.PhoneNumber = shoppingCartVM.OrderHeader.PhoneNumber;
+                    user.StreetAddress = shoppingCartVM.OrderHeader.StreetAddress;
+                    user.City = shoppingCartVM.OrderHeader.City;
+                    user.State = shoppingCartVM.OrderHeader.State;
+                    user.ZipCode = shoppingCartVM.OrderHeader.PostalCode;
+                }
+                shoppingCartVM.OrderHeader.ApplicationUser = user;
 
-                // Calc Order Total
-                var total = cart.Sum(item =>
-                    item.Count <= 50 ? item.Product.Price * item.Count :
-                    item.Count <= 100 ? item.Product.Price50 * item.Count :
-                    item.Product.Price100 * item.Count
-                );
-
-				// Fill OrderHeader
-				shoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
-                shoppingCartVM.OrderHeader.OrderTotal = total;
-                shoppingCartVM.OrderHeader.OrderStatus = StaticData.StatusPending;
-                shoppingCartVM.OrderHeader.PaymentStatus = StaticData.PaymentStatusPending;
-
+                // Fill OrderHeader
+                shoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
+                shoppingCartVM.OrderHeader.OrderTotal = CalcOrderTotal(cart);
+                if (shoppingCartVM.OrderHeader.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
+                {
+                    // Regular Customer
+                    shoppingCartVM.OrderHeader.OrderStatus = StaticData.StatusPending;
+                    shoppingCartVM.OrderHeader.PaymentStatus = StaticData.PaymentStatusPending;
+                }
+                else
+                {
+                    // Company
+                    shoppingCartVM.OrderHeader.OrderStatus = StaticData.StatusApproved;
+                    shoppingCartVM.OrderHeader.PaymentStatus = StaticData.PaymentStatusDelayedPayment;
+                }
                 unitOfWork.OrderHeaderRepository.Add(shoppingCartVM.OrderHeader);
                 unitOfWork.Commit();
 
-				// Fill OrderDetail
-                List<OrderDetail> orderDetails = new List<OrderDetail>();
-				foreach (var item in shoppingCartVM.CartItems)
+                // Fill OrderDetail
+                List<OrderDetail> orderDetails = new();
+                foreach (var item in shoppingCartVM.CartItems)
                 {
-					OrderDetail orderDetail = new()
+                    OrderDetail orderDetail = new()
                     {
-						OrderHeaderId = shoppingCartVM.OrderHeader.Id,
-						ProductId = item.ProductId,
-						Count = item.Count,
-						Price =
-						item.Count <= 50 ? item.Product.Price :
-						item.Count <= 100 ? item.Product.Price50 :
-						item.Product.Price100
-					};
+                        OrderHeaderId = shoppingCartVM.OrderHeader.Id,
+                        ProductId = item.ProductId,
+                        Count = item.Count,
+                        Price =
+                        item.Count <= 50 ? item.Product.Price :
+                        item.Count <= 100 ? item.Product.Price50 :
+                        item.Product.Price100
+                    };
 
                     orderDetails.Add(orderDetail);
-				}
-				unitOfWork.OrderDetailRepository.AddRange(orderDetails);
-				unitOfWork.Commit();
+                }
+                unitOfWork.OrderDetailRepository.AddRange(orderDetails);
+                unitOfWork.Commit();
 
-				return RedirectToAction(nameof(CompleteOrder));
+                return RedirectToAction(nameof(CompleteOrder), new { id = shoppingCartVM.OrderHeader.Id });
             }
 
             return View(shoppingCartVM);
         }
 
-		public IActionResult CompleteOrder()
+        public IActionResult CompleteOrder(int id)
         {
-            return View();
+            return View(id);
         }
 
+        public double CalcOrderTotal(IEnumerable<ShoppingCart> carts)
+        {
+            var total = carts.Sum(item =>
+                    item.Count <= 50 ? item.Product.Price * item.Count :
+                    item.Count <= 100 ? item.Product.Price50 * item.Count :
+                    item.Product.Price100 * item.Count
+                );
 
-		#region Increment, Decrement and Remove
-			public IActionResult IncrementCount(int cartId)
+            return total;
+        }
+
+        #region Increment, Decrement and Remove
+            public IActionResult IncrementCount(int cartId)
         {
             var cart = unitOfWork.ShoppingCartRepository.GetOne(c => c.Id == cartId, tracked: true);
             if (cart != null)
