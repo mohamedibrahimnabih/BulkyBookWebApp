@@ -1,0 +1,38 @@
+﻿@model OrderVM
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+@section Notifications {
+    <partial name="_AlertPartial"></partial>
+}
+
+<div class="row pb-3">
+    <div class="col-6 d-flex align-items-center">
+        <h3>All Orders</h3>
+    </div>
+</div>
+
+<div class="row">
+    <table id="tableData" class="table table-hover" width="100%">
+        <thead>
+            <tr class="table-dark">
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Phone Number</th>
+                <th scope="col">Email</th>
+                <th scope="col">Status</th>
+                <th scope="col">Total</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Inserted by DataTables -->
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/order.js"></script>
+}

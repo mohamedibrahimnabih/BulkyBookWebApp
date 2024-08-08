@@ -200,9 +200,9 @@ namespace BulkyBook.Areas.Customer.Controllers
         public IActionResult CompleteOrder(int id)
         {
             var order = unitOfWork.OrderHeaderRepository.GetOne(e => e.Id == id, tracked: true);
-            if(order != null)
+            if (order != null)
             {
-                if(order.PaymentStatus != StaticData.PaymentStatusDelayedPayment)
+                if (order.PaymentStatus != StaticData.PaymentStatusDelayedPayment)
                 {
                     var service = new SessionService();
                     var session = service.Get(order.SessionId);
@@ -213,19 +213,19 @@ namespace BulkyBook.Areas.Customer.Controllers
                         order.PaymentStatus = StaticData.PaymentStatusApproved;
                         order.PaymentDate = DateTime.Now;
                         order.PaymentIntentId = session.PaymentIntentId;
-
-                        // Remove the shopping cart
-                        var userId = _userManager.GetUserId(User);
-                        if (userId != null)
-                        {
-                            var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId);
-                            unitOfWork.ShoppingCartRepository.RemoveRange(cart);
-                        }
-
-                        unitOfWork.Commit();
-                        return View(id);
                     }
                 }
+
+                // Remove the shopping cart
+                var userId = _userManager.GetUserId(User);
+                if (userId != null)
+                {
+                    var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId);
+                    unitOfWork.ShoppingCartRepository.RemoveRange(cart);
+                }
+
+                unitOfWork.Commit();
+                return View(id);
             }
 
             return View(nameof(PaymentIssue));
