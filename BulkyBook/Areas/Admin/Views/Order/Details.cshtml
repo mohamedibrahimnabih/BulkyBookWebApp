@@ -247,11 +247,13 @@
 									</div>
 								</li>
 							</ul>
-
-							<button asp-action="" type="submit" class="btn btn-primary form-control my-1">Start Processing</button>
-							<button asp-action="" type="submit" class="btn btn-dark form-control my-1">Ship Order</button>
-							<button asp-action="" type="submit" class="btn btn-success form-control my-1">Pay Now</button>
-							<button asp-action="" type="submit" class="btn btn-danger form-control my-1">Cancel Order</button>
+							@if (User.IsInRole(StaticData.Role_Admin) || User.IsInRole(StaticData.Role_Employee))
+							{
+								<button asp-action="" type="submit" class="btn btn-primary form-control my-1">Start Processing</button>
+								<button asp-action="" type="submit" class="btn btn-dark form-control my-1">Ship Order</button>
+								<button asp-action="" type="submit" class="btn btn-success form-control my-1">Pay Now</button>
+								<button asp-action="" type="submit" class="btn btn-danger form-control my-1">Cancel Order</button>
+							}
 						</div>
 					</div>
 				</div>
