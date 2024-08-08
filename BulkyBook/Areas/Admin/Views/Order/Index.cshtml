@@ -1,4 +1,5 @@
 ﻿@model OrderVM
+@using BulkyBook.Utility;
 
 @{
     ViewData["Title"] = "Orders";
@@ -10,11 +11,30 @@
 
 <div class="row pb-3">
     <div class="col-6 d-flex align-items-center">
-        <h3>All Orders</h3>
+        <h3>Order list</h3>
     </div>
 </div>
 
 <div class="row">
+    <div class="d-flex justify-content-between pb-5 pt-2">
+        <ul class="list-group list-group-horizontal-sm">
+            <a style="text-decoration:none;cursor: pointer;" id="filter-inprocess" data-status="@StaticData.StatusInProcess">
+                <li class="list-group-item">In Process</li>
+            </a>
+            <a style="text-decoration:none;cursor: pointer;" id="filter-paymentpending" data-status="@StaticData.PaymentStatusDelayedPayment">
+                <li class="list-group-item">Payment Pending</li>
+            </a>
+            <a style="text-decoration:none;cursor: pointer;" id="filter-completed" data-status="@StaticData.StatusCompleted">
+                <li class="list-group-item">Completed</li>
+            </a>
+            <a style="text-decoration:none;cursor: pointer;" id="filter-approved" data-status="@StaticData.StatusApproved">
+                <li class="list-group-item">Approved</li>
+            </a>
+            <a style="text-decoration:none;cursor: pointer;" id="filter-all" data-status="All">
+                <li class="list-group-item active text-white bg-dark">All</li>
+            </a>
+        </ul>
+        </div>
     <table id="tableData" class="table table-hover" width="100%">
         <thead>
             <tr class="table-dark">
