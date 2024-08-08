@@ -4,6 +4,7 @@ using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BulkyBook.Areas.Admin.Controllers
@@ -13,14 +14,16 @@ namespace BulkyBook.Areas.Admin.Controllers
     public class OrderController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+		private readonly UserManager<IdentityUser> _userManager;
 
-        [BindProperty]
+		[BindProperty]
         public OrderVM OrderVM { get; set; }
 
-        public OrderController(IUnitOfWork unitOfWork)
+        public OrderController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
             this.unitOfWork = unitOfWork;
-        }
+			this._userManager = userManager;
+		}
 
         public IActionResult Index()
         {
@@ -39,7 +42,8 @@ namespace BulkyBook.Areas.Admin.Controllers
                 OrderVM.OrderDetails = unitOfWork.OrderDetailRepository.Get(e => e.OrderHeaderId == id, "Product");
                 return View(OrderVM);
             }
-            else return NotFound();
+            
+            return NotFound();
         }
 
         [HttpPost]
@@ -71,22 +75,36 @@ namespace BulkyBook.Areas.Admin.Controllers
 
 		#region APIs
 		[HttpGet]
-        public IActionResult GetAll(string status)
+		public IActionResult GetAll(string status)
         {
             IEnumerable<OrderHeader> orderHeaders;
 
-            if (status == "All" || string.IsNullOrEmpty(status))
-            {
-                orderHeaders = unitOfWork.OrderHeaderRepository.GetAll(includeProperties: "ApplicationUser");
-            }
-            else
-            {
-                orderHeaders = unitOfWork.OrderHeaderRepository.Get(
-                    expression: o => o.OrderStatus == status || o.PaymentStatus == status,
-                    includeProperties: "ApplicationUser");
-            }
+			if (User.IsInRole(StaticData.Role_Admin) || User.IsInRole(StaticData.Role_Employee))
+			{
+				if (status == "All" || string.IsNullOrEmpty(status))
+					orderHeaders = unitOfWork.OrderHeaderRepository.GetAll(includeProperties: "ApplicationUser");
+				else
+					orderHeaders = unitOfWork.OrderHeaderRepository.Get(
+						expression: o => o.OrderStatus == status || o.PaymentStatus == status,
+						includeProperties: "ApplicationUser");
+			}
+			else
+			{
+				var userId = _userManager.GetUserId(User);
+				if (userId != null)
+				{
+					if (status == "All" || string.IsNullOrEmpty(status))
+						orderHeaders = unitOfWork.OrderHeaderRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "ApplicationUser");
+					else
+						orderHeaders = unitOfWork.OrderHeaderRepository.Get(
+							expression: o => ((o.OrderStatus == status || o.PaymentStatus == status) && o.ApplicationUserId == userId),
+							includeProperties: "ApplicationUser");
 
-            return Json(orderHeaders);
+				}
+				return NotFound();
+			}
+
+			return Json(orderHeaders);
         }
         #endregion
     }
