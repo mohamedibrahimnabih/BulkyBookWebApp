@@ -165,6 +165,8 @@ namespace BulkyBook.Areas.Customer.Controllers
                         CancelUrl = $"{GetDomainName()}/Customer/Cart/PaymentIssue",
                     };
 
+                    TempData["RedirectedFromSummary"] = true;
+
                     foreach (var item in shoppingCartVM.CartItems)
                     {
                         var lineItem = new SessionLineItemOptions
@@ -177,7 +179,10 @@ namespace BulkyBook.Areas.Customer.Controllers
                                 {
                                     Name = item.Product.Title
                                 },
-                                UnitAmount = (long)item.Product.Price * 100,
+                                UnitAmount =
+                                    item.Count <= 50 ? (long)item.Product.Price * 100 :
+                                    item.Count <= 100 ? (long)item.Product.Price50 * 100 :
+                                    (long)item.Product.Price100 * 100
                             }
                         };
                         options.LineItems.Add(lineItem);
@@ -202,6 +207,25 @@ namespace BulkyBook.Areas.Customer.Controllers
             var order = unitOfWork.OrderHeaderRepository.GetOne(e => e.Id == id, tracked: true);
             if (order != null)
             {
+                if (order.PaymentStatus == StaticData.PaymentStatusDelayedPayment &&
+                    order.OrderStatus == StaticData.StatusShipped)
+                {
+                    var service = new SessionService();
+                    var session = service.Get(order.SessionId);
+
+                    if (session.PaymentStatus == "paid")
+                    {
+                        order.PaymentStatus = StaticData.PaymentStatusApproved;
+                        order.PaymentDate = DateTime.Now;
+                        order.PaymentIntentId = session.PaymentIntentId;
+                    }
+
+                    unitOfWork.Commit();
+
+                    TempData["RedirectedFromCompleteOrder"] = true;
+                    return RedirectToAction("CompleteOrder", "Order", new { area = "Admin", id });
+                }
+
                 if (order.PaymentStatus != StaticData.PaymentStatusDelayedPayment)
                 {
                     var service = new SessionService();
@@ -228,11 +252,15 @@ namespace BulkyBook.Areas.Customer.Controllers
                 return View(id);
             }
 
-            return View(nameof(PaymentIssue));
+            return NotFound();
         }
 
         public IActionResult PaymentIssue()
         {
+            if (TempData["RedirectedFromSummary"] == null)
+                return NotFound();
+            
+            TempData.Remove("RedirectedFromSummary");
             return View();
         }
 
