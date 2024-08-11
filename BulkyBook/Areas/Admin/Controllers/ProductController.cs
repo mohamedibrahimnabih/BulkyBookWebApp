@@ -23,11 +23,11 @@ namespace BulkyBook.Areas.Admin.Controllers
             this.webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult Index() => View(unitOfWork.ProductRepository.GetAll(includeProperties: "Category"));
+        public IActionResult Index() => View(unitOfWork.ProductRepository.Get(includeProperties: e => e.Category));
 
         public IActionResult UpSert(int? id)
         {
-            IEnumerable<SelectListItem> ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
+            IEnumerable<SelectListItem> ListOfCategories = unitOfWork.CategoryRepository.Get().Select(e => new SelectListItem
             {
                 Text = e.Name,
                 Value = e.Id.ToString()
@@ -98,7 +98,7 @@ namespace BulkyBook.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            productVM.ListOfCategories = unitOfWork.CategoryRepository.GetAll().Select(e => new SelectListItem
+            productVM.ListOfCategories = unitOfWork.CategoryRepository.Get().Select(e => new SelectListItem
             {
                 Text = e.Name,
                 Value = e.Id.ToString()
@@ -137,7 +137,7 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         #region APIs
         [HttpGet]
-        public IActionResult GetAll() => Json(unitOfWork.ProductRepository.GetAll(includeProperties: "Category"));
+        public IActionResult GetAll() => Json(unitOfWork.ProductRepository.Get(includeProperties: e => e.Category));
         #endregion
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
+using Stripe.Climate;
 
 namespace BulkyBook.Areas.Customer.Controllers
 {
@@ -31,7 +32,7 @@ namespace BulkyBook.Areas.Customer.Controllers
 
             if (userId != null)
             {
-                var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "Product");
+                var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: e => e.Product);
                 
                 var shoppingCartVM = new ShoppingCartVM
                 {
@@ -51,7 +52,7 @@ namespace BulkyBook.Areas.Customer.Controllers
 
             if (userId != null)
             {
-                var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "Product");
+                var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: e => e.Product);
                 var user = unitOfWork.ApplicationUserRepository.GetOne(e => e.Id == userId);
 
                 var shoppingCartVM = new ShoppingCartVM
@@ -93,7 +94,7 @@ namespace BulkyBook.Areas.Customer.Controllers
             }
 
             // Fill CartItems
-            var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "Product");
+            var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: e => e.Product);
             if (cart != null)
             {
                 shoppingCartVM.CartItems = cart;
@@ -223,7 +224,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                     unitOfWork.Commit();
 
                     TempData["RedirectedFromCompleteOrder"] = true;
-                    return RedirectToAction("CompleteOrder", "Order", new { area = "Admin", id });
+                    return RedirectToAction(nameof(CompleteOrder), nameof(Order), new { area = "Admin", id });
                 }
 
                 if (order.PaymentStatus != StaticData.PaymentStatusDelayedPayment)

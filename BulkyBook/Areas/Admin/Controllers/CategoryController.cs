@@ -19,7 +19,7 @@ namespace BulkyBook.Areas.Admin.Controllers
             this.unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index() => View(unitOfWork.CategoryRepository.GetAll());
+        public IActionResult Index() => View(unitOfWork.CategoryRepository.Get());
 
         public IActionResult UpSert(int? id)
         {
@@ -77,7 +77,7 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         #region APIs
         [HttpGet]
-        public IActionResult GetAll() => Json(unitOfWork.CategoryRepository.GetAll());
+        public IActionResult GetAll() => Json(unitOfWork.CategoryRepository.Get());
         #endregion
     }
 }

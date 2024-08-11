@@ -36,12 +36,12 @@ namespace BulkyBook.Areas.Admin.Controllers
         {
             OrderVM = new()
             {
-                OrderHeader = unitOfWork.OrderHeaderRepository.GetOne(e => e.Id == id, "ApplicationUser")
+                OrderHeader = unitOfWork.OrderHeaderRepository.GetOne(e => e.Id == id, includeProperties: e => e.ApplicationUser)
             };
 
             if (OrderVM.OrderHeader != null)
             {
-                OrderVM.OrderDetails = unitOfWork.OrderDetailRepository.Get(e => e.OrderHeaderId == id, "Product");
+                OrderVM.OrderDetails = unitOfWork.OrderDetailRepository.Get(e => e.OrderHeaderId == id, includeProperties: e => e.Product);
                 return View(OrderVM);
             }
             
@@ -103,7 +103,7 @@ namespace BulkyBook.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ShipOrder()
         {
-            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, "ApplicationUser");
+            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, includeProperties: e => e.ApplicationUser);
             if (orderHeaderFromDb != null)
             {
                 orderHeaderFromDb.OrderStatus = StaticData.StatusShipped;
@@ -167,7 +167,7 @@ namespace BulkyBook.Areas.Admin.Controllers
         public IActionResult PayNow()
         {
             var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id);
-            var OrderDetails = unitOfWork.OrderDetailRepository.Get(e => e.OrderHeaderId == OrderVM.OrderHeader.Id, includeProperties: "Product");
+            var OrderDetails = unitOfWork.OrderDetailRepository.Get(e => e.OrderHeaderId == OrderVM.OrderHeader.Id, includeProperties: e => e.Product);
 
             if (orderHeaderFromDb != null)
             {
@@ -238,11 +238,11 @@ namespace BulkyBook.Areas.Admin.Controllers
 			if (User.IsInRole(StaticData.Role_Admin) || User.IsInRole(StaticData.Role_Employee))
 			{
 				if (status == "All" || string.IsNullOrEmpty(status))
-					orderHeaders = unitOfWork.OrderHeaderRepository.GetAll(includeProperties: "ApplicationUser");
+					orderHeaders = unitOfWork.OrderHeaderRepository.Get(includeProperties: e => e.ApplicationUser);
 				else
 					orderHeaders = unitOfWork.OrderHeaderRepository.Get(
 						expression: o => o.OrderStatus == status || o.PaymentStatus == status,
-						includeProperties: "ApplicationUser");
+						includeProperties: e => e.ApplicationUser);
 			}
 			else
 			{
@@ -250,11 +250,11 @@ namespace BulkyBook.Areas.Admin.Controllers
 				if (userId != null)
 				{
 					if (status == "All" || string.IsNullOrEmpty(status))
-						orderHeaders = unitOfWork.OrderHeaderRepository.Get(e => e.ApplicationUserId == userId, includeProperties: "ApplicationUser");
+						orderHeaders = unitOfWork.OrderHeaderRepository.Get(e => e.ApplicationUserId == userId, includeProperties: e => e.ApplicationUser);
 					else
 						orderHeaders = unitOfWork.OrderHeaderRepository.Get(
 							expression: o => ((o.OrderStatus == status || o.PaymentStatus == status) && o.ApplicationUserId == userId),
-							includeProperties: "ApplicationUser");
+							includeProperties: e => e.ApplicationUser);
 
 				}
 				else

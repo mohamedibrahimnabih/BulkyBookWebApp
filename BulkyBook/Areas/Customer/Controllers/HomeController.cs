@@ -21,14 +21,14 @@ namespace BulkyBook.Areas.Customer.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index() => View(unitOfWork.ProductRepository.GetAll(includeProperties: "Category"));
+        public IActionResult Index() => View(unitOfWork.ProductRepository.Get(includeProperties: e => e.Category));
 
         public IActionResult Details(int? id)
         {
             var cart = new ShoppingCart();
             if(id != null)
             {
-                cart.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == id, includeProperties: "Category");
+                cart.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == id, includeProperties: e => e.Category);
                 cart.Count = 1;
                 cart.ProductId = (int)id;
             }
@@ -74,7 +74,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            cart.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == cart.ProductId, includeProperties: "Category");
+            cart.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == cart.ProductId, includeProperties: e => e.Category);
             return View(cart);
         }
 
