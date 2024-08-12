@@ -1,4 +1,5 @@
 ﻿@page
+@using BulkyBook.Utility
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
@@ -53,55 +54,67 @@
                     <label asp-for="Input.ZipCode">Zip Code</label>
                     <span asp-validation-for="Input.ZipCode" class="text-danger"></span>
                 </div>
-                <div class="col-md-6 form-floating">
-                    <select asp-for="Input.Role" asp-items="@Model.Input.ListOfRoles" class="form-select" aria-required="true" placeholder="role" id="roleSelect">
-                        <option disabled selected>--Select specific role--</option>
-                    </select>
-                    <label asp-for="Input.Role"></label>
-                    <span asp-validation-for="Input.Role" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 form-floating" id="companySelectDiv" style="display:none;">
-                    <select asp-for="Input.Company" asp-items="@Model.Input.ListOfCompanies" class="form-select" aria-required="true" placeholder="role">
-                        <option disabled selected>--Select specific company--</option>
-                    </select>
-                    <label asp-for="Input.Company"></label>
-                    <span asp-validation-for="Input.Company" class="text-danger"></span>
-                </div>
+                @if (!(User.IsInRole(StaticData.Role_Admin) || User.IsInRole(StaticData.Role_Employee)))
+                {
+                    <input asp-for="Input.Role" value="Customer" hidden />
+                }
+                else
+                {
+                    <div class="col-md-6 form-floating">
+                        <select asp-for="Input.Role" asp-items="@Model.Input.ListOfRoles" class="form-select" aria-required="true" placeholder="role" id="roleSelect">
+                            <option disabled selected>--Select specific role--</option>
+                        </select>
+                        <label asp-for="Input.Role"></label>
+                        <span asp-validation-for="Input.Role" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 form-floating" id="companySelectDiv" style="display:none;">
+                        <select asp-for="Input.Company" asp-items="@Model.Input.ListOfCompanies" class="form-select" aria-required="true" placeholder="role">
+                            <option disabled selected>--Select specific company--</option>
+                        </select>
+                        <label asp-for="Input.Company"></label>
+                        <span asp-validation-for="Input.Company" class="text-danger"></span>
+                    </div>
+                }
             </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-dark">Register</button>
         </form>
     </div>
-    <p class="divider-text d-flex pt-3">or</p>
-    <div class="col-md-12 pt-3 col-md-offset-2 text-center">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+    @if (!(User.IsInRole(StaticData.Role_Admin) || User.IsInRole(StaticData.Role_Employee)))
+    {
+        <p class="divider-text d-flex pt-3">or</p>
+        <div class="col-md-12 pt-3 col-md-offset-2 text-center">
+            <section>
+                <h3>Use another service to register.</h3>
+                <hr />
+                @{
+                    if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                    {
                         <div>
                             <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-dark" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
+                                There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                    article
+                                    about setting up this ASP.NET application to support logging in via external services
+                                </a>.
                             </p>
                         </div>
-                    </form>
+                    }
+                    else
+                    {
+                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                            <div>
+                                <p>
+                                    @foreach (var provider in Model.ExternalLogins!)
+                                    {
+                                        <button type="submit" class="btn btn-dark" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                    }
+                                </p>
+                            </div>
+                        </form>
+                    }
                 }
-            }
-        </section>
-    </div>
+            </section>
+        </div>
+    }
 </div>
 
 @section Scripts {
