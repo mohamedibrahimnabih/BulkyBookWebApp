@@ -14,14 +14,7 @@ namespace BulkyBook.DataAccess.Repository
     {
         public void Update(ShoppingCart shoppingCart)
         {
-            var shoppingCartFromDb = context.ShoppingCarts.FirstOrDefault(e => e.Id == shoppingCart.Id);
-
-            if (shoppingCartFromDb != null)
-            {
-                shoppingCartFromDb.ProductId = shoppingCart.ProductId;
-                shoppingCartFromDb.ApplicationUserId = shoppingCart.ApplicationUserId;
-                shoppingCartFromDb.Count = shoppingCart.Count;
-            }
+            context.ShoppingCarts.Update(shoppingCart);
         }
     }
 }

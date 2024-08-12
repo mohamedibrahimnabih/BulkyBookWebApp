@@ -56,12 +56,11 @@ namespace BulkyBook.Areas.Customer.Controllers
             if (ModelState.IsValid)
             {
                 var existingCart = unitOfWork.ShoppingCartRepository
-                    .GetOne(e => e.ApplicationUserId == cart.ApplicationUserId && e.ProductId == cart.ProductId);
+                    .GetOne(e => e.ApplicationUserId == cart.ApplicationUserId && e.ProductId == cart.ProductId, tracked: true);
 
                 if (existingCart != null)
                 {
                     existingCart.Count += cart.Count;
-                    unitOfWork.ShoppingCartRepository.Update(existingCart);
                 }
                 else
                 {

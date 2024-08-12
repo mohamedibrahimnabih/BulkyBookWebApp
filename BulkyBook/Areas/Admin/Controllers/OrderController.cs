@@ -53,7 +53,7 @@ namespace BulkyBook.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
 		public IActionResult UpdateOrderDetail()
 		{
-			var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id);
+			var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, tracked: true);
 			if(orderHeaderFromDb != null)
             {
 				orderHeaderFromDb.Name = OrderVM.OrderHeader.Name;
@@ -67,7 +67,6 @@ namespace BulkyBook.Areas.Admin.Controllers
                 if (OrderVM.OrderHeader.TrackingNumber != null)
                     orderHeaderFromDb.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
 
-                unitOfWork.OrderHeaderRepository.Update(orderHeaderFromDb);
 				unitOfWork.Commit();
 
 				TempData["alert"] = "Order Details Updated Successfully.";
@@ -83,11 +82,10 @@ namespace BulkyBook.Areas.Admin.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult StartProcessing()
 		{
-            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id);
+            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, tracked: true);
             if (orderHeaderFromDb != null)
             {
                 orderHeaderFromDb.OrderStatus = StaticData.StatusInProcess;
-                unitOfWork.OrderHeaderRepository.Update(orderHeaderFromDb);
                 unitOfWork.Commit();
 
                 TempData["alert"] = "Order Details Updated Successfully.";
@@ -103,7 +101,7 @@ namespace BulkyBook.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ShipOrder()
         {
-            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, includeProperties: e => e.ApplicationUser);
+            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, tracked: true, includeProperties: e => e.ApplicationUser);
             if (orderHeaderFromDb != null)
             {
                 orderHeaderFromDb.OrderStatus = StaticData.StatusShipped;
@@ -114,7 +112,6 @@ namespace BulkyBook.Areas.Admin.Controllers
                     orderHeaderFromDb.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
                 if(orderHeaderFromDb.ApplicationUser.CompanyId.GetValueOrDefault() != 0)
                     orderHeaderFromDb.PaymentDueDate = DateTime.Now.AddDays(30);
-                unitOfWork.OrderHeaderRepository.Update(orderHeaderFromDb);
                 unitOfWork.Commit();
 
                 TempData["alert"] = "Order Details Updated Successfully.";
@@ -130,7 +127,7 @@ namespace BulkyBook.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CancelOrder()
         {
-            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id);
+            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, tracked: true);
 
             if (orderHeaderFromDb != null)
             {
@@ -152,7 +149,6 @@ namespace BulkyBook.Areas.Admin.Controllers
                 }
                 
                 orderHeaderFromDb.OrderStatus = StaticData.StatusCancelled;
-                unitOfWork.OrderHeaderRepository.Update(orderHeaderFromDb);
                 unitOfWork.Commit();
 
                 return RedirectToAction(nameof(Details), new { id = OrderVM.OrderHeader.Id });
@@ -166,7 +162,7 @@ namespace BulkyBook.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult PayNow()
         {
-            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id);
+            var orderHeaderFromDb = unitOfWork.OrderHeaderRepository.GetOne(u => u.Id == OrderVM.OrderHeader.Id, tracked: true);
             var OrderDetails = unitOfWork.OrderDetailRepository.Get(e => e.OrderHeaderId == OrderVM.OrderHeader.Id, includeProperties: e => e.Product);
 
             if (orderHeaderFromDb != null)
@@ -204,7 +200,6 @@ namespace BulkyBook.Areas.Admin.Controllers
                 var service = new SessionService();
                 var session = service.Create(options);
                 orderHeaderFromDb.SessionId = session.Id;
-                unitOfWork.OrderHeaderRepository.Update(orderHeaderFromDb);
                 unitOfWork.Commit();
 
                 return Redirect(session.Url);
