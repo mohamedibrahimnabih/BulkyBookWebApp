@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BulkyBook.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = StaticData.Role_Admin)]
+    [Authorize(Roles = ($"{StaticData.Role_Admin},{StaticData.Role_Employee}"))]
     public class CompanyController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -19,7 +19,7 @@ namespace BulkyBook.Areas.Admin.Controllers
             this.unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index() => View(unitOfWork.CompanyRepository.Get());
+        public IActionResult Index() => View();
 
         public IActionResult UpSert(int? id)
         {

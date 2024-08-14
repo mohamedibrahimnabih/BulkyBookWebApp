@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace BulkyBook.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = StaticData.Role_Admin)]
+    [Authorize(Roles = ($"{StaticData.Role_Admin},{StaticData.Role_Employee}"))]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
@@ -23,7 +23,7 @@ namespace BulkyBook.Areas.Admin.Controllers
             this.webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult Index() => View(unitOfWork.ProductRepository.Get(includeProperties: e => e.Category));
+        public IActionResult Index() => View();
 
         public IActionResult UpSert(int? id)
         {

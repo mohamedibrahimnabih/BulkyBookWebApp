@@ -1,0 +1,37 @@
+﻿@model IEnumerable<ApplicationUser>
+
+@{
+    ViewData["Title"] = "Manage User";
+}
+
+@section Notifications {
+    <partial name="_AlertPartial"></partial>
+}
+
+<div class="row pb-3">
+    <div class="col-6 d-flex align-items-center">
+        <h3>Manage User</h3>
+    </div>
+</div>
+
+<div class="row">
+    <table id="tableData" class="table table-hover">
+        <thead>
+            <tr class="table-dark">
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Company</th>
+                <th scope="col">Role</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Inserted by DataTables -->
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/user.js"></script>
+}
