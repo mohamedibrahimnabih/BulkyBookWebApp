@@ -1,0 +1,64 @@
+﻿@model UserRoleVM
+
+@{
+    ViewData["Title"] = "Role Management";
+}
+
+<h3>Edit Role: <span class="text-warning">@Model.Email</span></h3>
+<hr />
+<div class="row">
+    <div>
+        <form asp-action="RoleManagement">
+            <div asp-validation-summary="None" class="text-danger"></div>
+            <input asp-for="Id" type="hidden" />
+            <div class="form-group pb-2">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" readonly />
+            </div>
+            <div class="form-group pb-2">
+                <label asp-for="Role"></label>
+                <select asp-for="Role" asp-items="@Model.ListOfRoles" class="form-select" aria-required="true" placeholder="role" id="roleSelect">
+                    <option disabled selected>--Select specific role--</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+            <div class="form-group pb-2" id="companySelectDiv" style="display:none;">
+                <label asp-for="Company"></label>
+                <select asp-for="Company" asp-items="@Model.ListOfCompanies" class="form-select" aria-required="true" placeholder="role">
+                    <option disabled selected>--Select specific company--</option>
+                </select>
+                <span asp-validation-for="Company" class="text-danger"></span>
+            </div>
+            <div class="row pt-3">
+                <div class="col-6 d-flex align-items-center">
+                    <input type="submit" value="Update" class="btn btn-dark form-control" />
+                </div>
+                <div class="col-6">
+                    <a asp-controller="User" asp-action="Index" class="btn btn-outline-dark form-control"><i class="bi bi-arrow-left-circle-fill"></i> Back to List</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById('roleSelect').addEventListener('change', function () {
+            var companySelectDiv = document.getElementById('companySelectDiv');
+            if (this.value === 'Company') {
+                companySelectDiv.style.display = 'block';
+            } else {
+                companySelectDiv.style.display = 'none';
+            }
+        });
+
+        window.onload = function() {
+            var roleSelect = document.getElementById('roleSelect');
+            if (roleSelect.value === 'Company') {
+                document.getElementById('companySelectDiv').style.display = 'block';
+            }
+        }
+    </script>
+}

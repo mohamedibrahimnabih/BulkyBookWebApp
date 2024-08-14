@@ -19,8 +19,15 @@
                     } else {
                         return `<a href="javascript:;" class="btn btn-danger btn-sm lock-button" data-id="${row.id}"><i class="bi bi-lock-fill"></i> Lock</a>`;
                     }
-                }
-                ,
+                },
+                orderable: false
+            },
+            {
+                data: null,
+                className: 'dt-center',
+                render: function (data, type, row) {
+                    return `<a href="/Admin/User/RoleManagement?userId=${row.id}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i> Manage Role</a>`;
+                },
                 orderable: false
             }
         ]
