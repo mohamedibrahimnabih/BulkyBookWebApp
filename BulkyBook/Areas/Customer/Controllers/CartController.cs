@@ -206,8 +206,10 @@ namespace BulkyBook.Areas.Customer.Controllers
         public IActionResult CompleteOrder(int id)
         {
             var order = unitOfWork.OrderHeaderRepository.GetOne(e => e.Id == id, tracked: true);
-            if (order != null)
+            if (order != null && TempData["RedirectedFromSummary"] != null)
             {
+                TempData.Remove("RedirectedFromSummary");
+
                 if (order.PaymentStatus == StaticData.PaymentStatusDelayedPayment &&
                     order.OrderStatus == StaticData.StatusShipped)
                 {

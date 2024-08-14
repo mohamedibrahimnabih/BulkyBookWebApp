@@ -7,6 +7,7 @@ using BulkyBook.Utility;
 using Stripe;
 using Microsoft.Extensions.Options;
 using BulkyBook.DataAccess.DbInitializer;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkSto
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
 {
