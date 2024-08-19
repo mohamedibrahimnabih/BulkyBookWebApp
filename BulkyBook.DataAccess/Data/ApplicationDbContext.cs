@@ -14,6 +14,7 @@ namespace BulkyBook.DataAccess.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; } // To Add Discriminator
         public DbSet<OrderHeader> OrderHeaders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

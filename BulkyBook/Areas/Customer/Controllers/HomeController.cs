@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace BulkyBook.Areas.Customer.Controllers
 {
@@ -21,14 +22,15 @@ namespace BulkyBook.Areas.Customer.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index() => View(unitOfWork.ProductRepository.Get(includeProperties: e => e.Category));
+        public IActionResult Index()
+            => View(unitOfWork.ProductRepository.Get(includeProperties: [e => e.Category, e => e.ProductImages]));
 
         public IActionResult Details(int? id)
         {
             var cart = new ShoppingCart();
             if(id != null)
             {
-                cart.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == id, includeProperties: e => e.Category);
+                cart.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == id, includeProperties: [e => e.Category, e => e.ProductImages]);
                 cart.Count = 1;
                 cart.ProductId = (int)id;
             }

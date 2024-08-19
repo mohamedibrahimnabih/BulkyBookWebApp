@@ -43,7 +43,7 @@ namespace BulkyBook.Areas.Admin.Controllers
 
             if (id != null)
             {
-                productVM.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == id);
+                productVM.Product = unitOfWork.ProductRepository.GetOne(e => e.Id == id, includeProperties: e => e.ProductImages);
             }
 
             return productVM.Product != null ? View(productVM) : NotFound();
@@ -51,46 +51,51 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpSert(ProductVM productVM, IFormFile? file)
+        public async Task<IActionResult> UpSert(ProductVM productVM)
         {
             if (ModelState.IsValid)
             {
-                // Handle file
-                if (file != null && file.Length > 0)
-                {
-                    string imagesFolderPath = Path.Combine(webHostEnvironment.WebRootPath, "images/products");
-                    Directory.CreateDirectory(imagesFolderPath);
-
-                    if (!string.IsNullOrEmpty(productVM.Product.ImgURL))
-                    {
-                        string oldImagePath = Path.Combine(webHostEnvironment.WebRootPath, productVM.Product.ImgURL.TrimStart('/'));
-                        if (System.IO.File.Exists(oldImagePath))
-                        {
-                            System.IO.File.Delete(oldImagePath);
-                        }
-                    }
-
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Generate a new guid and use it as the file name
-                    string filePath = Path.Combine(imagesFolderPath, fileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(fileStream);
-                    }
-
-                    productVM.Product.ImgURL = "/images/products/" + fileName;
-                }
-
                 if (productVM.Product.Id == 0)
                 {
                     unitOfWork.ProductRepository.Add(productVM.Product);
-
+                    unitOfWork.Commit(); // Commit to get the Id
                     TempData["alert"] = "Added successfully";
                 }
-                else
+
+                // Handle files
+                if (productVM.Files != null && productVM.Files.Any())
+                {
+                    string productFolderPath = Path.Combine(webHostEnvironment.WebRootPath, "images/products/", $"product-{productVM.Product.Id.ToString()}");
+                    Directory.CreateDirectory(productFolderPath);
+
+                    productVM.Product.ProductImages = new List<ProductImage>();
+                    foreach (var file in productVM.Files)
+                    {
+                        if (file.Length > 0)
+                        {
+                            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                            string filePath = Path.Combine(productFolderPath, fileName);
+
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(fileStream);
+                            }
+
+                            var productImage = new ProductImage
+                            {
+                                URL = Path.Combine("/images/products/", $"product-{productVM.Product.Id.ToString()}", fileName).Replace("\\", "/"),
+                                ProductId = productVM.Product.Id
+                            };
+
+                            productVM.Product.ProductImages.Add(productImage);
+                        }
+                    }
+                    unitOfWork.ProductImageRepository.AddRange(productVM.Product.ProductImages);
+                }
+
+                if (productVM.Product.Id != 0)
                 {
                     unitOfWork.ProductRepository.Update(productVM.Product);
-
                     TempData["alert"] = "Edited successfully";
                 }
 
@@ -113,19 +118,15 @@ namespace BulkyBook.Areas.Admin.Controllers
 
             if (product != null)
             {
-                var imagePath = product.ImgURL;
+                string productFolderPath = Path.Combine(webHostEnvironment.WebRootPath, "images/products/", $"product-{id}");
+
+                if (Directory.Exists(productFolderPath))
+                {
+                    Directory.Delete(productFolderPath, true);
+                }
 
                 unitOfWork.ProductRepository.Remove(product);
                 unitOfWork.Commit();
-
-                if (!string.IsNullOrEmpty(imagePath))
-                {
-                    string fullPath = Path.Combine(webHostEnvironment.WebRootPath, imagePath.TrimStart('/'));
-                    if (System.IO.File.Exists(fullPath))
-                    {
-                        System.IO.File.Delete(fullPath);
-                    }
-                }
 
                 TempData["alert"] = "Deleted successfully";
 
@@ -133,6 +134,26 @@ namespace BulkyBook.Areas.Admin.Controllers
             }
 
             return NotFound();
+        }
+
+        public IActionResult DeleteImage(int imageId)
+        {
+            var productImage = unitOfWork.ProductImageRepository.GetOne(e => e.Id == imageId);
+            
+            var imagePath = productImage.URL;
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                string fullPath = Path.Combine(webHostEnvironment.WebRootPath, imagePath.TrimStart('/'));
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+
+            unitOfWork.ProductImageRepository.Remove(productImage);
+            unitOfWork.Commit();
+
+            return RedirectToAction(nameof(UpSert), new { id = productImage.ProductId });
         }
 
         #region APIs

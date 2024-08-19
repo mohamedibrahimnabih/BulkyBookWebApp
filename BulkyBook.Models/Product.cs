@@ -35,9 +35,9 @@ namespace BulkyBook.Models
         [DisplayName("Price For 100+")]
         [Range(1, 1000)]
         public double Price100 { get; set; }
-        
-        [DisplayName("Image")]
-        public string? ImgURL { get; set; }
+
+        [DisplayName("Product Images")]
+        public List<ProductImage>? ProductImages { get; set; }
 
         [DisplayName("Category")]
         public int CategoryId { get; set; }

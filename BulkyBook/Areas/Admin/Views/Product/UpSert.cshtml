@@ -23,7 +23,6 @@
             <form asp-action="UpSert" enctype="multipart/form-data" id="myform">
                 <div asp-validation-summary="None" class="text-danger"></div>
                 <input asp-for="Product.Id" type="hidden" />
-                <input asp-for="Product.ImgURL" type="hidden" />
                 <div class="form-group pb-2">
                     <label asp-for="Product.Title" class="control-label"></label>
                     <input asp-for="Product.Title" class="form-control" />
@@ -93,12 +92,30 @@
         </div>
     </div>
     <div class="col-3">
-        <label asp-for="Product.ImgURL" class="control-label"></label>
-        <img src="@Model.Product.ImgURL" width="100%" id="imgPreview" />
+        <label asp-for="Product.ProductImages" class="control-label"></label>
         <div class="form-group pb-2">
-            <input type="file" name="file" class="form-control" id="fileInput" form="myform" />
+            <input type="file" name="Files" class="form-control" id="fileInput" form="myform" multiple />
+
+            @if (Model.Product.Id != 0)
+            {
+                <div class="row pt-3">
+                    @if (Model.Product.ProductImages != null)
+                    {
+                        @foreach (var image in Model.Product.ProductImages)
+                        {
+                            <div class="col-md-3">
+                                <img src="@image.URL" width="100%" class="img-thumbnail" />
+                                <a asp-action="DeleteImage" asp-controller="Product" asp-route-imageId="@image.Id" class="badge bg-danger">Delete</a>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+
+            <div class="row pt-3" id="imagePreviewContainer"></div>
         </div>
     </div>
+
 </div>
 
 @section Scripts {
@@ -109,13 +126,27 @@
         });
 
         document.getElementById('fileInput').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById('imgPreview').src = e.target.result;
-                }
-                reader.readAsDataURL(file);
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            imagePreviewContainer.innerHTML = ''; // Clear previous images
+
+            const files = event.target.files;
+            if (files) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = e.target.result;
+                        imgElement.className = 'img-thumbnail';
+                        imgElement.style.width = '100%';
+
+                        const colElement = document.createElement('div');
+                        colElement.className = 'col-md-3';
+                        colElement.appendChild(imgElement);
+
+                        imagePreviewContainer.appendChild(colElement);
+                    }
+                    reader.readAsDataURL(file);
+                });
             }
         });
     </script>

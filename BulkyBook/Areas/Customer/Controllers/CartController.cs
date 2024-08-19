@@ -32,7 +32,7 @@ namespace BulkyBook.Areas.Customer.Controllers
 
             if (userId != null)
             {
-                var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: e => e.Product);
+                var cart = unitOfWork.ShoppingCartRepository.Get(e => e.ApplicationUserId == userId, includeProperties: e => e.Product.ProductImages);
                 
                 var shoppingCartVM = new ShoppingCartVM
                 {
